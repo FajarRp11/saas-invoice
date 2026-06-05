@@ -1,0 +1,274 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String? // nullable karena bisa login via OAuth
+
+  accounts Account[]
+  sessions Session[]
+
+  organizations Organization[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  // @@map("verification_tokens")
+
+  @@unique([identifier, token])
+}
+
+// ============================================
+// ORGANIZATION (Workspace / Bisnis)
+// ============================================
+
+model Organization {
+  id      String  @id @default(cuid())
+  userId  String
+  name    String
+  email   String?
+  phone   String?
+  address String? @db.Text
+  city    String?
+  country String?
+  logoUrl String? // disimpan di Cloudflare R2
+
+  // Invoice settings
+  currency       String @default("IDR")
+  taxPercent     Float  @default(11) // PPN default 11%
+  invoicePrefix  String @default("INV")
+  nextInvoiceNum Int    @default(1) // auto-increment invoice number
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clients  Client[]
+  products Product[]
+  invoices Invoice[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("organizations")
+}
+
+// ============================================
+// CLIENT (Pelanggan)
+// ============================================
+
+model Client {
+  id             String  @id @default(cuid())
+  organizationId String
+  name           String
+  email          String?
+  phone          String?
+  address        String? @db.Text
+  city           String?
+  country        String?
+  notes          String? @db.Text
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invoices     Invoice[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("clients")
+}
+
+// ============================================
+// PRODUCT / SERVICE (Master Item)
+// ============================================
+
+model Product {
+  id             String  @id @default(cuid())
+  organizationId String
+  name           String
+  description    String? @db.Text
+  price          Float
+  unit           String  @default("pcs") // pcs, jam, hari, bulan, dll
+  isActive       Boolean @default(true)
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invoiceItems InvoiceItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("products")
+}
+
+// ============================================
+// INVOICE
+// ============================================
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+model Invoice {
+  id             String        @id @default(cuid())
+  organizationId String
+  clientId       String
+  invoiceNumber  String // e.g. INV-2024-001
+  status         InvoiceStatus @default(DRAFT)
+
+  issueDate DateTime @default(now())
+  dueDate   DateTime
+
+  notes          String? @db.Text
+  termsCondition String? @db.Text
+
+  // Kalkulasi
+  subtotal   Float // sum of all items total
+  taxPercent Float @default(0)
+  taxAmount  Float @default(0)
+  discount   Float @default(0) // nominal diskon
+  total      Float // subtotal + taxAmount - discount
+
+  // PDF
+  pdfUrl String? // URL ke file PDF di R2 setelah di-generate
+
+  // Email tracking
+  sentAt         DateTime? // kapan invoice dikirim ke client
+  lastReminderAt DateTime? // kapan terakhir kirim reminder
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  client       Client        @relation(fields: [clientId], references: [id])
+  items        InvoiceItem[]
+  payments     Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, invoiceNumber])
+  @@map("invoices")
+}
+
+// ============================================
+// INVOICE ITEM (Line items di Invoice)
+// ============================================
+
+model InvoiceItem {
+  id        String  @id @default(cuid())
+  invoiceId String
+  productId String? // nullable, bisa input item custom
+
+  name        String
+  description String? @db.Text
+  quantity    Float
+  unitPrice   Float
+  total       Float // quantity * unitPrice
+
+  invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@map("invoice_items")
+}
+
+// ============================================
+// PAYMENT (Support partial payment)
+// ============================================
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CASH
+  CREDIT_CARD
+  MIDTRANS
+  OTHER
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  invoiceId String
+  amount    Float
+  method    PaymentMethod @default(BANK_TRANSFER)
+  paidAt    DateTime      @default(now())
+  note      String?       @db.Text
+
+  // Midtrans / payment gateway reference
+  referenceId String? // transaction ID dari payment gateway
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("payments")
+}
+
+// ============================================
+// ACTIVITY LOG (Opsional tapi keren di porto)
+// ============================================
+
+model ActivityLog {
+  id             String @id @default(cuid())
+  organizationId String
+  entityType     String // "invoice", "client", "payment"
+  entityId       String
+  action         String // "created", "sent", "paid", "overdue"
+  description    String
+  metadata       Json? // data tambahan kalau perlu
+
+  createdAt DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([entityType, entityId])
+  @@map("activity_logs")
+}
