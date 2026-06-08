@@ -5,6 +5,7 @@ import { prisma } from "./lib/prisma";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { LoginSchmea } from "./lib/validations/auth";
 import { compareSync } from "bcrypt-ts";
+import { toast } from "sonner";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -36,11 +37,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         if (!user) {
-          throw new Error("User not found");
-        }
-
-        // cek user apakah login pakai password, jika tidak throw error
-        if (!user.password) {
           throw new Error("User not found");
         }
 

@@ -13,13 +13,18 @@ import { useActionState } from "react";
 import { signInCredentials, signInWithGoogle } from "@/app/actions/auth";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { InfoIcon } from "lucide-react";
+import { Spinner } from "./ui/spinner";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const [state, formAction, isPending] = useActionState(signInCredentials, null);
-  const fieldErrors = typeof state?.error == "object" ? state.error.fieldErrors : null;
+  const [state, formAction, isPending] = useActionState(
+    signInCredentials,
+    null,
+  );
+  const fieldErrors =
+    typeof state?.error == "object" ? state.error.fieldErrors : null;
   return (
     <form action={formAction} className="p-6 md:p-8">
       <FieldGroup>
@@ -29,14 +34,13 @@ export function LoginForm({
             Enter your email below to login to your account
           </p>
         </div>
-        {state?.message ?
+        {state?.message ? (
           <Alert className="bg-red-100 border-red-300 text-red-700">
             <InfoIcon />
             <AlertTitle>Failed to login</AlertTitle>
-            <AlertDescription>
-              {state?.message}
-            </AlertDescription>
-          </Alert> : null}
+            <AlertDescription>{state?.message}</AlertDescription>
+          </Alert>
+        ) : null}
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
           <Input
@@ -69,7 +73,16 @@ export function LoginForm({
           <FieldError>{fieldErrors?.password}</FieldError>
         </Field>
         <Field>
-          <Button type="submit" disabled={isPending}>{isPending ? "Logging In..." : "Login"}</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? (
+              <div className="flex items-center gap-2">
+                <Spinner />
+                Logging In...
+              </div>
+            ) : (
+              "Login"
+            )}
+          </Button>
         </Field>
         <FieldSeparator>Or continue with</FieldSeparator>
         <Field>

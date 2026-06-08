@@ -70,6 +70,11 @@ export const signInCredentials = async (
     return { message: "User not found" };
   }
 
+  // cek user apakah login pakai password, jika tidak throw error
+  if (!user.password) {
+    return { message: "User not found" };
+  }
+
   try {
     await signIn("credentials", { email, password, redirectTo: "/dashboard" });
   } catch (error) {
