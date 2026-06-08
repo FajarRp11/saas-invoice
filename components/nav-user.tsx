@@ -1,10 +1,6 @@
-"use client"
+"use client";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,27 +9,33 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
-import { EllipsisVerticalIcon, CircleUserRoundIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
-import { Button } from "./ui/button"
-import { signOutAction } from "@/app/actions/auth"
+} from "@/components/ui/sidebar";
+import {
+  EllipsisVerticalIcon,
+  CircleUserRoundIcon,
+  CreditCardIcon,
+  BellIcon,
+  LogOutIcon,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import { signOutAction } from "@/app/actions/auth";
 
 export function NavUser({
   user,
 }: {
   user: {
-    name: string
-    email: string
-    image?: string
-  }
+    name: string;
+    email: string;
+    image?: string;
+  };
 }) {
-  const { isMobile } = useSidebar()
+  const { isMobile } = useSidebar();
 
   return (
     <SidebarMenu>
@@ -80,25 +82,26 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <CircleUserRoundIcon
-                />
+                <CircleUserRoundIcon />
                 Account
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <CreditCardIcon
-                />
+                <CreditCardIcon />
                 Billing
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <BellIcon
-                />
+                <BellIcon />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <form action={signOutAction}>
               <DropdownMenuItem>
-                <Button type="submit" variant="ghost" className="w-full justify-start">
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  className="w-full justify-start"
+                >
                   <LogOutIcon />
                   Log out
                 </Button>
@@ -108,5 +111,5 @@ export function NavUser({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

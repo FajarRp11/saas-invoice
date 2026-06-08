@@ -67,9 +67,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const hasOrg = auth?.user.organizationId;
 
       // Udah login tapi belum punya org & akses selain /onboarding
-      // if (!hasOrg && protectedRoute.includes(nextUrl.pathname)) {
-      //   return Response.redirect(new URL("/onboarding", nextUrl));
-      // }
+      if (!hasOrg && protectedRoute.includes(nextUrl.pathname)) {
+        return Response.redirect(new URL("/onboarding", nextUrl));
+      }
 
       // Udah punya org tapi masih di /onboarding
       if (hasOrg && nextUrl.pathname.startsWith("/onboarding")) {
