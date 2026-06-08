@@ -6,7 +6,7 @@ import {
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-  FieldError
+  FieldError,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { signInWithGoogle, signUpCredentials } from "@/app/actions/auth";
@@ -18,8 +18,12 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const [state, formAction, isPending] = useActionState(signUpCredentials, null);
-  const fieldErrors = typeof state?.error == "object" ? state.error.fieldErrors : null;
+  const [state, formAction, isPending] = useActionState(
+    signUpCredentials,
+    null,
+  );
+  const fieldErrors =
+    typeof state?.error == "object" ? state.error.fieldErrors : null;
   return (
     <form action={formAction} className="p-6 md:p-8">
       <FieldGroup>
@@ -29,14 +33,13 @@ export function SignupForm({
             Fill in the form below to create your account
           </p>
         </div>
-        {state?.message ?
+        {state?.message ? (
           <Alert className="bg-red-100 border-red-300 text-red-700">
             <InfoIcon />
             <AlertTitle>Failed to register</AlertTitle>
-            <AlertDescription>
-              {state?.message}
-            </AlertDescription>
-          </Alert> : null}
+            <AlertDescription>{state?.message}</AlertDescription>
+          </Alert>
+        ) : null}
         <Field>
           <FieldLabel htmlFor="name">Full Name</FieldLabel>
           <Input
@@ -87,7 +90,9 @@ export function SignupForm({
           <FieldError>{fieldErrors?.confirmPassword}</FieldError>
         </Field>
         <Field>
-          <Button type="submit" disabled={isPending}>{isPending ? "Creating your account..." : "Create Account"}</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "Creating your account..." : "Create Account"}
+          </Button>
         </Field>
         <FieldSeparator>Or continue with</FieldSeparator>
         <Field>
