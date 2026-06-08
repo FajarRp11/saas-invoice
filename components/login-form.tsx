@@ -21,7 +21,7 @@ export function LoginForm({
   const [state, formAction, isPending] = useActionState(signInCredentials, null);
   const fieldErrors = typeof state?.error == "object" ? state.error.fieldErrors : null;
   return (
-    <form action={formAction} className={cn("flex flex-col gap-6", className)} {...props}>
+    <form action={formAction} className="p-6 md:p-8">
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Login to your account</h1>
