@@ -204,7 +204,13 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        {user && (
+          <NavUser user={{
+            name: user.name ?? "",
+            email: user.email ?? "",
+            image: user.image ?? undefined
+          }} />
+        )}
       </SidebarFooter>
     </Sidebar>
   )
