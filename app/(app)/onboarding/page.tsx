@@ -32,7 +32,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { createOrganization } from "@/app/actions/organization";
 import { Building2Icon, Settings2Icon } from "lucide-react";
 
-const OnBoarding = () => {
+export default function Page() {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(
     createOrganization,
@@ -271,6 +271,4 @@ const OnBoarding = () => {
       </div>
     </div>
   );
-};
-
-export default OnBoarding;
+}

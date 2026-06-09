@@ -1,8 +1,8 @@
-import { object, string, number, coerce } from "zod";
+import { object, string, number, coerce, email } from "zod";
 
 export const OrganizationSchema = object({
   name: string().min(1, "Organization name is required"),
-  email: string().email("Email is not valid").optional().or(string().length(0)),
+  email: email("Email is not valid").optional().or(string().length(0)),
   phone: string().optional(),
   address: string().optional(),
   city: string().optional(),
