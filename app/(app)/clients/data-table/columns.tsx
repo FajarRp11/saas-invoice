@@ -12,15 +12,23 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
+// Mirrors the `Client` model in prisma/schema.prisma
 export type Client = {
   id: string;
+  organizationId: string;
   name: string;
-  email: string;
-  phone: string;
-  address: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  city: string | null;
+  country: string | null;
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 };
+
+const fallback = (value: string | null) =>
+  value && value.length > 0 ? value : "-";
 
 export const columns: ColumnDef<Client>[] = [
   {
@@ -30,14 +38,40 @@ export const columns: ColumnDef<Client>[] = [
   {
     accessorKey: "email",
     header: "Email",
+    cell: ({ row }) => fallback(row.original.email),
   },
   {
     accessorKey: "phone",
     header: "Phone",
+    cell: ({ row }) => fallback(row.original.phone),
   },
   {
     accessorKey: "address",
     header: "Address",
+    cell: ({ row }) => fallback(row.original.address),
+  },
+  {
+    accessorKey: "city",
+    header: "City",
+    cell: ({ row }) => fallback(row.original.city),
+  },
+  {
+    accessorKey: "country",
+    header: "Country",
+    cell: ({ row }) => fallback(row.original.country),
+  },
+  {
+    accessorKey: "notes",
+    header: "Notes",
+    cell: ({ row }) => fallback(row.original.notes),
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Created At",
+    cell: ({ row }) =>
+      new Intl.DateTimeFormat("id-ID", {
+        dateStyle: "medium",
+      }).format(new Date(row.original.createdAt)),
   },
   {
     id: "actions",

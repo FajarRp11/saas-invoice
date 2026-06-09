@@ -1,31 +1,20 @@
 import { columns, Client } from "./data-table/columns";
 import { DataTable } from "@/components/ui/data-table";
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 
 async function getData(): Promise<Client[]> {
-  return [
-    {
-      id: "728ed52f",
-      name: "John Doe",
-      email: "example@gmail.com",
-      phone: "123-456-7890",
-      address: "123 Main St",
-    },
-    {
-      id: "728ed52f",
-      name: "John Doe",
-      email: "example@gmail.com",
-      phone: "123-456-7890",
-      address: "123 Main St",
-    },
-    {
-      id: "728ed52f",
-      name: "John Doe",
-      email: "example@gmail.com",
-      phone: "123-456-7890",
-      address: "123 Main St",
-    },
-    // ...
-  ];
+  const session = await auth();
+  const organizationId = session?.user?.organizationId;
+
+  if (!organizationId) {
+    return [];
+  }
+
+  return prisma.client.findMany({
+    where: { organizationId },
+    orderBy: { createdAt: "desc" },
+  });
 }
 
 export default async function DemoPage() {
