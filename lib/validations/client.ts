@@ -7,4 +7,5 @@ export const ClientSchema = object({
   address: string().optional(),
   city: string().optional(),
   country: string().optional(),
+  notes: string().optional(),
 });

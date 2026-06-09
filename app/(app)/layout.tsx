@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar variant="floating" />
       <SidebarInset>
         <SiteHeader />
         <main className="flex-1">{children}</main>

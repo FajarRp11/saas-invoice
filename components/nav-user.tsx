@@ -100,7 +100,7 @@ export function NavUser({
                 <Button
                   type="submit"
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-start p-0"
                 >
                   <LogOutIcon />
                   Log out
