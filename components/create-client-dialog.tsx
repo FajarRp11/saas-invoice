@@ -14,7 +14,7 @@ import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { createClient } from "@/app/actions/client";
 import { toast } from "sonner";
 import { Spinner } from "./ui/spinner";
@@ -28,11 +28,14 @@ export default function CreateClientDialog() {
 
   const router = useRouter();
 
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   useEffect(() => {
     if (state) {
       if (state.success) {
-        toast.success(state.message || "Organization created successfully!");
+        toast.success(state.message || "Client created successfully!");
         router.refresh();
+        setIsDialogOpen(false);
       } else if (state.message) {
         toast.error(state.message);
       }
@@ -40,9 +43,9 @@ export default function CreateClientDialog() {
   }, [state]);
 
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button>
           <PlusIcon />
           Add Client
         </Button>

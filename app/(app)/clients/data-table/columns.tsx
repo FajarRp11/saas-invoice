@@ -47,12 +47,6 @@ function ClientActions({ client }: { client: Client }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem
-            onClick={() => navigator.clipboard.writeText(client.id)}
-          >
-            Copy client ID
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setViewOpen(true)}>
             <Eye />
             <span>View client</span>
