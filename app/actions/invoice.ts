@@ -1,0 +1,158 @@
+"use server";
+
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { InvoiceSchema } from "@/lib/validations/invoice";
+import { redirect } from "next/navigation";
+import z from "zod";
+
+export async function getInvoices() {
+  const session = await auth();
+
+  if (!session?.user?.organizationId) {
+    redirect("/onboarding");
+  }
+
+  const invoices = await prisma.invoice.findMany({
+    where: {
+      organizationId: session.user.organizationId,
+    },
+    include: {
+      client: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return invoices;
+}
+
+export async function createInvoice(prevState: unknown, formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user?.organizationId) {
+    redirect("/onboarding");
+  }
+
+  let parsedItems: unknown[] = [];
+  try {
+    parsedItems = JSON.parse(formData.get("items") as string);
+  } catch {
+    return { error: { formErrors: ["Invalid items data"], fieldErrors: {} } };
+  }
+
+  const validationsFields = InvoiceSchema.safeParse({
+    clientId: formData.get("clientId"),
+    issueDate: formData.get("issueDate"),
+    dueDate: formData.get("dueDate"),
+    notes: formData.get("notes"),
+    termsCondition: formData.get("termsCondition"),
+    taxPercent: Number(formData.get("taxPercent")),
+    discount: Number(formData.get("discount")),
+    items: parsedItems,
+  });
+
+  if (!validationsFields.success) {
+    return {
+      error: z.flattenError(validationsFields.error),
+    };
+  }
+
+  const {
+    clientId,
+    issueDate,
+    dueDate,
+    notes,
+    termsCondition,
+    taxPercent,
+    discount,
+    items,
+  } = validationsFields.data;
+
+  // Calculate totals
+  const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+  const taxAmount = (subtotal * taxPercent) / 100;
+  const total = subtotal + taxAmount - discount;
+
+  try {
+    // Get organization for invoice number generation
+    const org = await prisma.organization.findUnique({
+      where: { id: session.user.organizationId },
+      select: { invoicePrefix: true, nextInvoiceNum: true },
+    });
+
+    if (!org) {
+      return { success: false, message: "Organization not found" };
+    }
+
+    // Generate invoice number: e.g. INV-2024-001
+    const year = new Date(issueDate).getFullYear();
+    const num = String(org.nextInvoiceNum).padStart(3, "0");
+    const invoiceNumber = `${org.invoicePrefix}-${year}-${num}`;
+
+    // Create invoice with items in a transaction
+    await prisma.$transaction([
+      prisma.invoice.create({
+        data: {
+          organizationId: session.user.organizationId,
+          clientId,
+          invoiceNumber,
+          issueDate: new Date(issueDate),
+          dueDate: new Date(dueDate),
+          notes: notes || null,
+          termsCondition: termsCondition || null,
+          subtotal,
+          taxPercent,
+          taxAmount,
+          discount,
+          total,
+          items: {
+            create: items.map((item) => ({
+              productId: item.productId || null,
+              name: item.name,
+              description: item.description || null,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              total: item.total,
+            })),
+          },
+        },
+      }),
+      // Increment the organization's next invoice number
+      prisma.organization.update({
+        where: { id: session.user.organizationId },
+        data: { nextInvoiceNum: { increment: 1 } },
+      }),
+    ]);
+  } catch (error) {
+    console.error("Error creating invoice:", error);
+    return { success: false, message: "Failed to create invoice" };
+  }
+
+  return { success: true, message: "Invoice created successfully" };
+}
+
+export async function deleteInvoice(id: string) {
+  const session = await auth();
+
+  if (!session?.user?.organizationId) {
+    redirect("/onboarding");
+  }
+
+  try {
+    await prisma.invoice.delete({
+      where: { id },
+    });
+  } catch (error) {
+    return { success: false, message: "Invoice deleted failed" };
+  }
+
+  return { success: true, message: "Invoice deleted successfully" };
+}

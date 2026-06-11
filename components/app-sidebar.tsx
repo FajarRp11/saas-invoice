@@ -15,7 +15,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { LayoutDashboardIcon, CommandIcon, UsersIcon, PackageIcon } from "lucide-react";
+import { LayoutDashboardIcon, CommandIcon, UsersIcon, PackageIcon, FileTextIcon } from "lucide-react";
 import { auth } from "@/auth";
 
 const data = {
@@ -39,6 +39,11 @@ const data = {
       title: "Products",
       url: "/products",
       icon: <PackageIcon />,
+    },
+    {
+      title: "Invoices",
+      url: "/invoices",
+      icon: <FileTextIcon />,
     },
   ],
 };
