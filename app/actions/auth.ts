@@ -2,10 +2,9 @@
 import { prisma } from "@/lib/prisma";
 import { LoginSchmea, RegisterSchmea } from "@/lib/validations/auth";
 import { hashSync } from "bcrypt-ts";
-import { error } from "console";
 import { redirect } from "next/navigation";
 import z from "zod";
-import { Prisma } from "../generated/prisma/client";
+import { Prisma } from "@/app/generated/prisma/client";
 import { signIn, signOut } from "@/auth";
 import { AuthError } from "next-auth";
 
