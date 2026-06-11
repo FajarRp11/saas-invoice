@@ -12,14 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { ColumnDef } from "@tanstack/react-table";
-import { Eye, MoreHorizontal, Trash2 } from "lucide-react";
+import { Eye, MoreHorizontal, Trash2, Pencil } from "lucide-react";
 import ViewInvoiceDialog from "@/components/view-invoice-dialog";
 import DeleteInvoiceDialog from "@/components/delete-invoice-dialog";
+import Link from "next/link";
 
-// Matches Prisma InvoiceStatus enum
 export type InvoiceStatus = "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "CANCELLED";
 
-// Type matching the Prisma Invoice model with included client
 export type InvoiceWithClient = {
   id: string;
   organizationId: string;
@@ -47,7 +46,6 @@ export type InvoiceWithClient = {
   };
 };
 
-// Status badge config with semantic colors
 export const statusConfig: Record<
   InvoiceStatus,
   { label: string; className: string }
@@ -100,22 +98,26 @@ function InvoiceActions({ invoice }: { invoice: InvoiceWithClient }) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
-            onClick={() =>
-              navigator.clipboard.writeText(invoice.invoiceNumber)
-            }
+            onClick={() => navigator.clipboard.writeText(invoice.invoiceNumber)}
           >
             Copy invoice number
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setViewOpen(true)}>
-            <Eye />
+            <Eye className="h-4 w-4" />
             <span>View invoice</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href={`/invoices/${invoice.id}/edit`}>
+              <Pencil className="h-4 w-4" />
+              <span>Edit invoice</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-destructive"
             onClick={() => setDeleteOpen(true)}
           >
-            <Trash2 />
+            <Trash2 className="h-4 w-4" />
             <span>Delete invoice</span>
           </DropdownMenuItem>
         </DropdownMenuContent>

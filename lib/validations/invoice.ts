@@ -22,3 +22,10 @@ export const InvoiceSchema = object({
 
 export type InvoiceFormData = z.infer<typeof InvoiceSchema>;
 export type InvoiceItemFormData = z.infer<typeof InvoiceItemSchema>;
+
+export const EditInvoiceSchema = InvoiceSchema.extend({
+  status: z.enum(["DRAFT", "SENT", "PAID", "OVERDUE", "CANCELLED"]),
+});
+
+export type EditInvoiceFormData = z.infer<typeof EditInvoiceSchema>;
+

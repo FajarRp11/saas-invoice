@@ -2,7 +2,7 @@
 
 import { useState, useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createInvoice } from "@/app/actions/invoice";
+import { updateInvoice } from "@/app/actions/invoice";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +25,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
-import { PlusIcon, Trash2Icon } from "lucide-react";
+import { PlusIcon, Trash2Icon, ArrowLeftIcon } from "lucide-react";
+import Link from "next/link";
 import type { InvoiceItemFormData } from "@/lib/validations/invoice";
 
 type Client = {
@@ -42,7 +43,34 @@ type Product = {
   unit: string;
 };
 
-interface CreateInvoiceFormProps {
+type InvoiceItem = {
+  id: string;
+  productId: string | null;
+  name: string;
+  description: string | null;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+};
+
+type Invoice = {
+  id: string;
+  clientId: string;
+  status: string;
+  issueDate: Date | string;
+  dueDate: Date | string;
+  notes: string | null;
+  termsCondition: string | null;
+  subtotal: number;
+  taxPercent: number;
+  taxAmount: number;
+  discount: number;
+  total: number;
+  items: InvoiceItem[];
+};
+
+interface EditInvoiceFormProps {
+  invoice: Invoice;
   clients: Client[];
   products: Product[];
 }
@@ -55,13 +83,8 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
-function todayISO() {
-  return new Date().toISOString().split("T")[0];
-}
-
-function defaultDueDate() {
-  const d = new Date();
-  d.setDate(d.getDate() + 30);
+function formatDateForInput(date: Date | string) {
+  const d = new Date(date);
   return d.toISOString().split("T")[0];
 }
 
@@ -74,38 +97,49 @@ const emptyItem: InvoiceItemFormData = {
   total: 0,
 };
 
-export default function CreateInvoiceForm({
+export default function EditInvoiceForm({
+  invoice,
   clients,
   products,
-}: CreateInvoiceFormProps) {
+}: EditInvoiceFormProps) {
   const router = useRouter();
-  const [state, formAction, isPending] = useActionState(createInvoice, null);
+  const [state, formAction, isPending] = useActionState(updateInvoice, null);
   const fieldErrors =
     typeof state?.error === "object" ? state.error.fieldErrors : null;
 
-  const [discount, setDiscount] = useState(0);
-  const [tax, setTax] = useState(11);
+  // Form state for complex fields
+  const [clientId, setClientId] = useState(invoice.clientId);
+  const [status, setStatus] = useState(invoice.status);
+  const [items, setItems] = useState<InvoiceItemFormData[]>(
+    invoice.items.map((item) => ({
+      productId: item.productId || "",
+      name: item.name,
+      description: item.description || "",
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      total: item.total,
+    }))
+  );
 
-  // Form state for complex fields not handled by native inputs
-  const [clientId, setClientId] = useState("");
-  const [items, setItems] = useState<InvoiceItemFormData[]>([{ ...emptyItem }]);
+  const [taxPercent, setTaxPercent] = useState(invoice.taxPercent);
+  const [discount, setDiscount] = useState(invoice.discount);
 
   // Calculations
   const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-  const taxAmount = subtotal * (tax / 100);
+  const taxAmount = (subtotal * taxPercent) / 100;
   const total = subtotal + taxAmount - discount;
 
   useEffect(() => {
     if (state) {
       if (state.success) {
-        toast.success(state.message || "Invoice created successfully!");
+        toast.success(state.message || "Invoice updated successfully!");
         router.push("/invoices");
         router.refresh();
       } else if (state.message) {
         toast.error(state.message);
       }
     }
-  }, [state]);
+  }, [state, router]);
 
   // Item management
   function addItem() {
@@ -153,7 +187,9 @@ export default function CreateInvoiceForm({
   return (
     <form action={formAction}>
       {/* Hidden inputs for state-managed values */}
+      <input type="hidden" name="id" value={invoice.id} />
       <input type="hidden" name="clientId" value={clientId} />
+      <input type="hidden" name="status" value={status} />
       <input
         type="hidden"
         name="items"
@@ -170,42 +206,62 @@ export default function CreateInvoiceForm({
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         {/* Main form */}
         <div className="grid gap-6">
-          {/* Client & Dates */}
+          {/* Client, Status & Dates */}
           <Card>
             <CardHeader>
               <CardTitle>Invoice Details</CardTitle>
               <CardDescription>
-                Select a client and set invoice dates
+                Edit details and dates of the invoice
               </CardDescription>
             </CardHeader>
             <CardContent>
               <FieldGroup>
-                <Field>
-                  <Label>Client</Label>
-                  <Select value={clientId} onValueChange={setClientId}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a client" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {clients.map((client) => (
-                        <SelectItem key={client.id} value={client.id}>
-                          {client.name}
-                          {client.email && ` (${client.email})`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {fieldErrors?.clientId && (
-                    <FieldError>{fieldErrors.clientId}</FieldError>
-                  )}
-                </Field>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field>
+                    <Label>Client</Label>
+                    <Select value={clientId} onValueChange={setClientId}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a client" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clients.map((client) => (
+                          <SelectItem key={client.id} value={client.id}>
+                            {client.name}
+                            {client.email && ` (${client.email})`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldErrors?.clientId && (
+                      <FieldError>{fieldErrors.clientId}</FieldError>
+                    )}
+                  </Field>
+                  <Field>
+                    <Label>Status</Label>
+                    <Select value={status} onValueChange={setStatus}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DRAFT">Draft</SelectItem>
+                        <SelectItem value="SENT">Sent</SelectItem>
+                        <SelectItem value="PAID">Paid</SelectItem>
+                        <SelectItem value="OVERDUE">Overdue</SelectItem>
+                        <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldErrors?.status && (
+                      <FieldError>{fieldErrors.status}</FieldError>
+                    )}
+                  </Field>
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <Field>
                     <Label>Issue Date</Label>
                     <Input
                       type="date"
                       name="issueDate"
-                      defaultValue={todayISO()}
+                      defaultValue={formatDateForInput(invoice.issueDate)}
                     />
                     {fieldErrors?.issueDate && (
                       <FieldError>{fieldErrors.issueDate}</FieldError>
@@ -216,7 +272,7 @@ export default function CreateInvoiceForm({
                     <Input
                       type="date"
                       name="dueDate"
-                      defaultValue={defaultDueDate()}
+                      defaultValue={formatDateForInput(invoice.dueDate)}
                     />
                     {fieldErrors?.dueDate && (
                       <FieldError>{fieldErrors.dueDate}</FieldError>
@@ -232,7 +288,7 @@ export default function CreateInvoiceForm({
             <CardHeader>
               <CardTitle>Items</CardTitle>
               <CardDescription>
-                Add products or services to the invoice
+                Add, modify or delete line items
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -253,9 +309,13 @@ export default function CreateInvoiceForm({
                             </SelectTrigger>
                             <SelectContent>
                               {products.map((product) => (
-                                <SelectItem key={product.id} value={product.id}>
+                                <SelectItem
+                                  key={product.id}
+                                  value={product.id}
+                                >
                                   {product.name} —{" "}
-                                  {formatCurrency(product.price)}/{product.unit}
+                                  {formatCurrency(product.price)}/
+                                  {product.unit}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -359,7 +419,7 @@ export default function CreateInvoiceForm({
             </CardContent>
           </Card>
 
-          {/* Notes */}
+          {/* Notes & Terms */}
           <Card>
             <CardHeader>
               <CardTitle>Additional Info</CardTitle>
@@ -370,6 +430,7 @@ export default function CreateInvoiceForm({
                   <Label>Notes</Label>
                   <Textarea
                     name="notes"
+                    defaultValue={invoice.notes ?? ""}
                     placeholder="Additional notes for the client..."
                   />
                 </Field>
@@ -377,6 +438,7 @@ export default function CreateInvoiceForm({
                   <Label>Terms & Conditions</Label>
                   <Textarea
                     name="termsCondition"
+                    defaultValue={invoice.termsCondition ?? ""}
                     placeholder="Payment terms, late fees, etc..."
                   />
                 </Field>
@@ -407,8 +469,8 @@ export default function CreateInvoiceForm({
                     name="taxPercent"
                     min="0"
                     step="any"
-                    value={tax}
-                    onChange={(e) => setTax(Number(e.target.value))}
+                    value={taxPercent}
+                    onChange={(e) => setTaxPercent(Number(e.target.value))}
                     className="h-7 text-sm text-right"
                   />
                 </div>
@@ -442,16 +504,20 @@ export default function CreateInvoiceForm({
 
                 <Separator />
 
-                <div className="flex justify-between text-sm font-bold">
-                  <span>Total</span>
-                  <span>{formatCurrency(total)}</span>
+                <div className="flex justify-between text-base font-bold">
+                  <span>Grand Total</span>
+                  <span className="text-primary">{formatCurrency(total)}</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Button type="submit" className="w-full mt-4" disabled={isPending}>
-            {isPending ? <Spinner /> : "Create Invoice"}
+          <Button
+            type="submit"
+            className="w-full mt-4"
+            disabled={isPending}
+          >
+            {isPending ? <Spinner /> : "Update Invoice"}
           </Button>
         </div>
       </div>
