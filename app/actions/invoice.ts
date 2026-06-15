@@ -1,9 +1,13 @@
 "use server";
 
 import { auth } from "@/auth";
+import { InvoicePDF } from "@/components/invoice-pdf";
 import { prisma } from "@/lib/prisma";
+import { uploadToR2 } from "@/lib/r2";
 import { InvoiceSchema, EditInvoiceSchema } from "@/lib/validations/invoice";
+import { renderToBuffer } from "@react-pdf/renderer";
 import { redirect } from "next/navigation";
+import { createElement } from "react";
 import z from "zod";
 
 export async function getInvoices() {
@@ -181,6 +185,8 @@ export async function getInvoiceById(id: string) {
     },
   });
 
+  console.log(invoice);
+
   return invoice;
 }
 
@@ -291,3 +297,43 @@ export async function updateInvoice(prevState: unknown, formData: FormData) {
   return { success: true, message: "Invoice updated successfully" };
 }
 
+export async function generateInvocePDF(invoiceId: string) {
+  const session = await auth();
+
+  if (!session?.user?.organizationId) {
+    redirect("/onboarding");
+  }
+
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: invoiceId },
+    include: {
+      client: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      organization: true,
+      items: true,
+    },
+  });
+
+  if (!invoice) {
+    throw new Error("Invoice not found");
+  }
+
+  const pdfElement = createElement(InvoicePDF, { invoice }) as any;
+
+  const buffer = await renderToBuffer(pdfElement);
+
+  const key = `invoices/${invoice?.organizationId}/${invoice?.invoiceNumber}.pdf`;
+  const pdfUrl = await uploadToR2(buffer, key, "application/pdf");
+
+  await prisma.invoice.update({
+    where: { id: invoiceId },
+    data: { pdfUrl },
+  });
+
+  return { pdfUrl };
+}

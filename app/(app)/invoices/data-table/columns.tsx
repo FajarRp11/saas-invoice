@@ -13,7 +13,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ColumnDef } from "@tanstack/react-table";
 import { Eye, MoreHorizontal, Trash2, Pencil } from "lucide-react";
-import ViewInvoiceDialog from "@/components/view-invoice-dialog";
 import DeleteInvoiceDialog from "@/components/delete-invoice-dialog";
 import Link from "next/link";
 
@@ -83,7 +82,6 @@ function formatCurrency(value: number) {
 }
 
 function InvoiceActions({ invoice }: { invoice: InvoiceWithClient }) {
-  const [viewOpen, setViewOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
@@ -103,9 +101,11 @@ function InvoiceActions({ invoice }: { invoice: InvoiceWithClient }) {
             Copy invoice number
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setViewOpen(true)}>
-            <Eye className="h-4 w-4" />
-            <span>View invoice</span>
+          <DropdownMenuItem asChild>
+            <Link href={`/invoices/${invoice.id}`}>
+              <Eye className="h-4 w-4" />
+              <span>View invoice</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href={`/invoices/${invoice.id}/edit`}>
@@ -123,11 +123,6 @@ function InvoiceActions({ invoice }: { invoice: InvoiceWithClient }) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ViewInvoiceDialog
-        invoice={invoice}
-        open={viewOpen}
-        onOpenChange={setViewOpen}
-      />
       <DeleteInvoiceDialog
         invoice={invoice}
         open={deleteOpen}
