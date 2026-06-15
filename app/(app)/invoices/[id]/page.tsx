@@ -78,8 +78,6 @@ export default async function InvoiceDetailPage({
     notFound();
   }
 
-
-
   const config = statusConfig[invoice.status as InvoiceStatus];
 
   return (
@@ -104,10 +102,7 @@ export default async function InvoiceDetailPage({
           </div>
         </div>
         <div className="flex justify-center items-center gap-2">
-          <GeneratePDFButton
-            invoiceId={invoice.id}
-            existingPdfUrl={invoice.pdfUrl}
-          />
+          <GeneratePDFButton invoiceId={invoice.id} initialPdfUrl={invoice.pdfUrl} />
 
           <Link href={`/invoices/${invoice.id}/edit`}>
             <Button variant="outline" size="sm">
