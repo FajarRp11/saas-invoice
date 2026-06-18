@@ -32,8 +32,6 @@ export function GeneratePDFButton({
     }
   }
 
-  const downloadUrl = `/api/invoices/pdf/${invoiceId}`;
-
   return (
     <div className="flex items-center gap-2">
       <Button
@@ -57,7 +55,7 @@ export function GeneratePDFButton({
       </Button>
 
       {pdfUrl && (
-        <Link href={downloadUrl} target="_blank">
+        <Link href={pdfUrl} target="_blank">
           <Button
             variant="default"
             size="sm"
