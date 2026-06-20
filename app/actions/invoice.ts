@@ -1,11 +1,14 @@
 "use server";
 
 import { auth } from "@/auth";
+import InvoiceEmail from "@/components/invoice-email";
 import { InvoicePDF } from "@/components/invoice-pdf";
 import { prisma } from "@/lib/prisma";
 import { uploadToR2 } from "@/lib/r2";
+import { resend } from "@/lib/resend";
 import { InvoiceSchema, EditInvoiceSchema } from "@/lib/validations/invoice";
 import { renderToBuffer } from "@react-pdf/renderer";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createElement } from "react";
 import z from "zod";
@@ -336,4 +339,66 @@ export async function generateInvocePDF(invoiceId: string) {
   });
 
   return { pdfUrl };
+}
+
+export async function sendInvoiceEmail(invoiceId: string) {
+  const session = await auth();
+  if (!session?.user?.organizationId) {
+    redirect("/onboarding");
+  }
+
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: invoiceId },
+    include: {
+      client: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+      organization: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  if (!invoice) throw new Error("Invoice not found");
+  if (!invoice.client.email) throw new Error("Client tidak punya email");
+  if (!invoice.pdfUrl) throw new Error("Generate PDF dulu sebelum kirim email");
+
+  const invoiceViewUrl = invoice.pdfUrl;
+
+  const { error } = await resend.emails.send({
+    from: `${invoice.organization.name} <${process.env.RESEND_DOMAIN}>`,
+    to: invoice.client.email,
+    subject: `Invoice ${invoice.invoiceNumber} dari ${invoice.organization.name}`,
+    react: InvoiceEmail({
+      clientName: invoice.client.name,
+      organizationName: invoice.organization.name,
+      invoiceNumber: invoice.invoiceNumber,
+      total: invoice.total,
+      dueDate: new Date(invoice.dueDate).toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      }),
+      invoiceUrl: invoiceViewUrl,
+    }),
+  });
+
+  if (error) throw new Error(`Gagal kirim email: ${error.message}`);
+
+  await prisma.invoice.update({
+    where: { id: invoiceId },
+    data: {
+      status: "SENT",
+      sentAt: new Date(),
+    },
+  });
+
+  revalidatePath(`/invoices/${invoiceId}`);
+
+  return { success: true };
 }

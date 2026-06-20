@@ -7,95 +7,272 @@ import {
   Image,
 } from "@react-pdf/renderer";
 
+// Gold/amber accent color matching the reference design
+const GOLD = "#C5A55A";
+const GOLD_DARK = "#8B7340";
+const DARK = "#333333";
+const MUTED = "#777777";
+const LIGHT_BG = "#FAFAF7";
+
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
-    fontSize: 12,
+    padding: 0,
+    fontSize: 11,
     fontFamily: "Helvetica",
-    color: "#333",
+    color: DARK,
+    backgroundColor: "#FFFFFF",
+    position: "relative",
   },
-  // Header
+  content: {
+    paddingHorizontal: 48,
+    paddingTop: 40,
+    paddingBottom: 80,
+  },
+
+  // ─── Header ───
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 40,
+    alignItems: "flex-start",
+    marginBottom: 36,
   },
-  logo: { width: 80, height: 80, objectFit: "contain" },
-  companyInfo: { textAlign: "right", gap: 2 },
-  companyName: { fontSize: 16, fontFamily: "Helvetica-Bold" },
-  // Invoice title
-  invoiceTitle: {
-    fontSize: 24,
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  logo: {
+    width: 48,
+    height: 48,
+    objectFit: "contain",
+  },
+  companyBlock: {
+    gap: 2,
+  },
+  companyName: {
+    fontSize: 18,
     fontFamily: "Helvetica-Bold",
-    marginBottom: 20,
-    color: "#1a1a1a",
+    color: DARK,
   },
-  // Info row (bill to & invoice detail)
+  companyTagline: {
+    fontSize: 9,
+    color: MUTED,
+  },
+  invoiceTitle: {
+    fontSize: 32,
+    fontFamily: "Helvetica-Bold",
+    color: GOLD,
+    letterSpacing: 2,
+  },
+
+  // ─── Invoice Info (bill to + invoice#/date) ───
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 30,
+    marginBottom: 32,
   },
-  label: { fontSize: 10, color: "#888", marginBottom: 4 },
-  value: { fontSize: 12, fontFamily: "Helvetica-Bold" },
-  valueNormal: { fontSize: 11 },
-  // Table
-  table: { marginBottom: 20 },
+  infoLeft: {
+    maxWidth: 240,
+  },
+  infoRight: {
+    gap: 4,
+    width: 220,
+  },
+  infoLabel: {
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+    color: DARK,
+    marginBottom: 4,
+  },
+  clientName: {
+    fontSize: 14,
+    fontFamily: "Helvetica-Bold",
+    color: DARK,
+    marginBottom: 2,
+  },
+  clientDetail: {
+    fontSize: 10,
+    color: MUTED,
+    lineHeight: 1.5,
+  },
+  infoDetailRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    marginBottom: 2,
+  },
+  infoDetailLabel: {
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+    color: DARK,
+    width: 75,
+    textAlign: "left",
+  },
+  infoDetailValue: {
+    fontSize: 11,
+    color: GOLD_DARK,
+    flex: 1,
+    textAlign: "right",
+  },
+
+  // ─── Table ───
+  table: {
+    marginBottom: 8,
+  },
+  tableTopLine: {
+    borderTopWidth: 1.5,
+    borderTopColor: GOLD,
+  },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "#f5f5f5",
-    padding: "8 10",
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#DDDDDD",
     fontFamily: "Helvetica-Bold",
     fontSize: 10,
+    color: DARK,
   },
   tableRow: {
     flexDirection: "row",
-    padding: "8 10",
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#EEEEEE",
   },
-  colName: { flex: 3 },
-  colQty: { flex: 1, textAlign: "center" },
+  colItem: { flex: 4 },
+  colQty: { flex: 1.5, textAlign: "center" },
   colPrice: { flex: 2, textAlign: "right" },
   colTotal: { flex: 2, textAlign: "right" },
-  // Summary
-  summary: { alignItems: "flex-end", marginTop: 10 },
+  itemName: { fontSize: 10 },
+  itemDesc: { fontSize: 9, color: MUTED, marginTop: 1 },
+
+  // ─── Summary + Payment section ───
+  summarySection: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 12,
+  },
+  paymentBlock: {
+    maxWidth: 220,
+  },
+  paymentTitle: {
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    color: DARK,
+    marginBottom: 6,
+    letterSpacing: 0.5,
+  },
+  paymentText: {
+    fontSize: 9,
+    color: MUTED,
+    lineHeight: 1.6,
+  },
+  summaryBlock: {
+    alignItems: "flex-end",
+    width: 200,
+  },
   summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: 220,
+    width: "100%",
     marginBottom: 4,
   },
-  summaryLabel: { color: "#888", fontSize: 11 },
-  summaryValue: { fontSize: 11 },
+  summaryLabel: {
+    fontSize: 10,
+    color: MUTED,
+    textAlign: "right",
+  },
+  summaryValue: {
+    fontSize: 10,
+    color: DARK,
+    textAlign: "right",
+    width: 80,
+  },
   totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: 220,
+    width: "100%",
     marginTop: 8,
-    paddingTop: 8,
+    paddingTop: 6,
     borderTopWidth: 1,
-    borderTopColor: "#333",
+    borderTopColor: "#CCCCCC",
   },
-  totalLabel: { fontFamily: "Helvetica-Bold", fontSize: 13 },
-  totalValue: { fontFamily: "Helvetica-Bold", fontSize: 13 },
-  // Footer
-  footer: {
-    marginTop: 40,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
-    fontSize: 10,
-    color: "#888",
+  totalLabel: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 14,
+    color: DARK,
   },
+  totalValue: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 14,
+    color: GOLD_DARK,
+    width: 80,
+    textAlign: "right",
+  },
+
+  // ─── Thank you + Signature ───
+  thankYouSection: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    marginTop: 48,
+    paddingTop: 12,
+    borderTopWidth: 0.5,
+    borderTopColor: "#DDDDDD",
+  },
+  thankYouText: {
+    fontSize: 12,
+    fontFamily: "Helvetica-BoldOblique",
+    color: DARK,
+  },
+  signatureBlock: {
+    alignItems: "center",
+    gap: 4,
+  },
+  signatureLine: {
+    width: 140,
+    borderBottomWidth: 1,
+    borderBottomColor: GOLD,
+    marginBottom: 4,
+  },
+  signatureLabel: {
+    fontSize: 9,
+    color: MUTED,
+    fontFamily: "Helvetica-Oblique",
+  },
+
+  // ─── Footer Bar ───
+  footerBar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: GOLD,
+    paddingVertical: 10,
+    paddingHorizontal: 48,
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 40,
+  },
+  footerItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  footerText: {
+    fontSize: 9,
+    color: "#FFFFFF",
+  },
+
+  // ─── Status watermark ───
   status: {
     position: "absolute",
-    top: 40,
-    right: 40,
-    fontSize: 32,
+    top: 300,
+    left: 100,
+    fontSize: 64,
     fontFamily: "Helvetica-Bold",
-    opacity: 0.12,
-    color: "green",
+    opacity: 0.06,
+    color: GOLD,
     transform: "rotate(-30deg)",
   },
 });
@@ -107,6 +284,14 @@ function formatIDR(amount: number) {
     currency: "IDR",
     minimumFractionDigits: 0,
   }).format(amount);
+}
+
+function formatDate(date: Date) {
+  return new Date(date).toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 
 // Types
@@ -151,127 +336,181 @@ export function InvoicePDF({ invoice }: InvoicePDFProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Watermark kalau PAID */}
+        {/* Watermark for PAID */}
         {invoice.status === "PAID" && <Text style={styles.status}>LUNAS</Text>}
 
-        {/* Header: Logo + Info Perusahaan */}
-        <View style={styles.header}>
-          <View>
-            {organization.logoUrl && (
-              <Image style={styles.logo} src={organization.logoUrl} />
-            )}
-          </View>
-          <View style={styles.companyInfo}>
-            <Text style={styles.companyName}>{organization.name}</Text>
-            {organization.email && <Text>{organization.email}</Text>}
-            {organization.phone && <Text>{organization.phone}</Text>}
-            {organization.address && <Text>{organization.address}</Text>}
-          </View>
-        </View>
-
-        {/* Invoice Title */}
-        <Text style={styles.invoiceTitle}>INVOICE</Text>
-
-        {/* Bill To + Invoice Detail */}
-        <View style={styles.infoRow}>
-          <View>
-            <Text style={styles.label}>TAGIHAN KEPADA</Text>
-            <Text style={styles.value}>{client.name}</Text>
-            {client.email && (
-              <Text style={styles.valueNormal}>{client.email}</Text>
-            )}
-            {client.phone && (
-              <Text style={styles.valueNormal}>{client.phone}</Text>
-            )}
-            {client.address && (
-              <Text style={styles.valueNormal}>{client.address}</Text>
-            )}
-          </View>
-          <View style={{ alignItems: "flex-end", gap: 4 }}>
-            <Text style={styles.label}>NO. INVOICE</Text>
-            <Text style={styles.value}>{invoice.invoiceNumber}</Text>
-            <Text style={styles.label}>TANGGAL</Text>
-            <Text style={styles.valueNormal}>
-              {new Date(invoice.issueDate).toLocaleDateString("id-ID")}
-            </Text>
-            <Text style={styles.label}>JATUH TEMPO</Text>
-            <Text style={styles.valueNormal}>
-              {new Date(invoice.dueDate).toLocaleDateString("id-ID")}
-            </Text>
-          </View>
-        </View>
-
-        {/* Table Items */}
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={styles.colName}>ITEM</Text>
-            <Text style={styles.colQty}>QTY</Text>
-            <Text style={styles.colPrice}>HARGA</Text>
-            <Text style={styles.colTotal}>TOTAL</Text>
-          </View>
-          {items.map((item, i) => (
-            <View key={i} style={styles.tableRow}>
-              <View style={styles.colName}>
-                <Text>{item.name}</Text>
-                {item.description && (
-                  <Text style={{ fontSize: 10, color: "#888" }}>
-                    {item.description}
+        <View style={styles.content}>
+          {/* ─── Header: Logo + Company Name | INVOICE title ─── */}
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              {organization.logoUrl && (
+                <Image style={styles.logo} src={organization.logoUrl} />
+              )}
+              <View style={styles.companyBlock}>
+                <Text style={styles.companyName}>{organization.name}</Text>
+                {organization.email && (
+                  <Text style={styles.companyTagline}>
+                    {organization.email}
                   </Text>
                 )}
               </View>
-              <Text style={styles.colQty}>{item.quantity}</Text>
-              <Text style={styles.colPrice}>{formatIDR(item.unitPrice)}</Text>
-              <Text style={styles.colTotal}>{formatIDR(item.total)}</Text>
             </View>
-          ))}
-        </View>
+            <Text style={styles.invoiceTitle}>INVOICE</Text>
+          </View>
 
-        {/* Summary */}
-        <View style={styles.summary}>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>
-              {formatIDR(invoice.subtotal)}
+          {/* ─── Invoice To + Invoice # / Date ─── */}
+          <View style={styles.infoRow}>
+            <View style={styles.infoLeft}>
+              <Text style={styles.infoLabel}>Invoice to:</Text>
+              <Text style={styles.clientName}>{client.name}</Text>
+              {client.address && (
+                <Text style={styles.clientDetail}>{client.address}</Text>
+              )}
+              {client.email && (
+                <Text style={styles.clientDetail}>{client.email}</Text>
+              )}
+              {client.phone && (
+                <Text style={styles.clientDetail}>{client.phone}</Text>
+              )}
+            </View>
+            <View style={styles.infoRight}>
+              <View style={styles.infoDetailRow}>
+                <Text style={styles.infoDetailLabel}>Invoice#</Text>
+                <Text style={styles.infoDetailValue}>
+                  {invoice.invoiceNumber}
+                </Text>
+              </View>
+              <View style={styles.infoDetailRow}>
+                <Text style={styles.infoDetailLabel}>Date</Text>
+                <Text style={styles.infoDetailValue}>
+                  {formatDate(invoice.issueDate)}
+                </Text>
+              </View>
+              <View style={styles.infoDetailRow}>
+                <Text style={styles.infoDetailLabel}>Due Date</Text>
+                <Text style={styles.infoDetailValue}>
+                  {formatDate(invoice.dueDate)}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* ─── Items Table ─── */}
+          <View style={styles.table}>
+            {/* Gold top line */}
+            <View style={styles.tableTopLine} />
+            {/* Header */}
+            <View style={styles.tableHeader}>
+              <Text style={styles.colItem}>Item</Text>
+              <Text style={styles.colQty}>Quantity</Text>
+              <Text style={styles.colPrice}>Unit Price</Text>
+              <Text style={styles.colTotal}>Total</Text>
+            </View>
+            {/* Rows */}
+            {items.map((item, i) => (
+              <View key={i} style={styles.tableRow}>
+                <View style={styles.colItem}>
+                  <Text style={styles.itemName}>{item.name}</Text>
+                  {item.description && (
+                    <Text style={styles.itemDesc}>{item.description}</Text>
+                  )}
+                </View>
+                <Text style={{ ...styles.colQty, fontSize: 10 }}>
+                  {item.quantity}
+                </Text>
+                <Text style={{ ...styles.colPrice, fontSize: 10 }}>
+                  {formatIDR(item.unitPrice)}
+                </Text>
+                <Text
+                  style={{
+                    ...styles.colTotal,
+                    fontSize: 10,
+                    color: GOLD_DARK,
+                  }}
+                >
+                  {formatIDR(item.total)}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          {/* ─── Summary + Payment Method ─── */}
+          <View style={styles.summarySection}>
+            {/* Payment Method (left) */}
+            <View style={styles.paymentBlock}>
+              {invoice.notes && (
+                <>
+                  <Text style={styles.paymentTitle}>NOTES</Text>
+                  <Text style={styles.paymentText}>{invoice.notes}</Text>
+                </>
+              )}
+            </View>
+
+            {/* Summary (right) */}
+            <View style={styles.summaryBlock}>
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Subtotal</Text>
+                <Text style={styles.summaryValue}>
+                  {formatIDR(invoice.subtotal)}
+                </Text>
+              </View>
+
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>
+                  Tax ({invoice.taxPercent}%)
+                </Text>
+                <Text style={styles.summaryValue}>
+                  {formatIDR(invoice.taxAmount)}
+                </Text>
+              </View>
+
+              {invoice.discount > 0 && (
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Discount</Text>
+                  <Text style={{ ...styles.summaryValue, color: "#C0392B" }}>
+                    -{formatIDR(invoice.discount)}
+                  </Text>
+                </View>
+              )}
+
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Total</Text>
+                <Text style={styles.totalValue}>
+                  {formatIDR(invoice.total)}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* ─── Thank You + Authorized Signed ─── */}
+          <View style={styles.thankYouSection}>
+            <Text style={styles.thankYouText}>
+              Thank you for your business!
             </Text>
-          </View>
-          {invoice.taxPercent > 0 && (
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>
-                PPN ({invoice.taxPercent}%)
-              </Text>
-              <Text style={styles.summaryValue}>
-                {formatIDR(invoice.taxAmount)}
-              </Text>
+            <View style={styles.signatureBlock}>
+              <View style={styles.signatureLine} />
+              <Text style={styles.signatureLabel}>Authorized Signed</Text>
             </View>
-          )}
-          {invoice.discount > 0 && (
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Diskon</Text>
-              <Text style={{ ...styles.summaryValue, color: "green" }}>
-                -{formatIDR(invoice.discount)}
-              </Text>
-            </View>
-          )}
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>TOTAL</Text>
-            <Text style={styles.totalValue}>{formatIDR(invoice.total)}</Text>
           </View>
         </View>
 
-        {/* Notes */}
-        {invoice.notes && (
-          <View style={{ marginTop: 30 }}>
-            <Text style={styles.label}>CATATAN</Text>
-            <Text style={{ fontSize: 11 }}>{invoice.notes}</Text>
-          </View>
-        )}
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text>Terima kasih atas kepercayaan Anda.</Text>
-          <Text style={{ marginTop: 4 }}>
-            Dokumen ini dibuat secara otomatis dan sah tanpa tanda tangan.
-          </Text>
+        {/* ─── Gold Footer Bar ─── */}
+        <View style={styles.footerBar}>
+          {organization.phone && (
+            <View style={styles.footerItem}>
+              <Text style={styles.footerText}>{organization.phone}</Text>
+            </View>
+          )}
+          {organization.address && (
+            <View style={styles.footerItem}>
+              <Text style={styles.footerText}>{organization.address}</Text>
+            </View>
+          )}
+          {organization.email && (
+            <View style={styles.footerItem}>
+              <Text style={styles.footerText}>{organization.email}</Text>
+            </View>
+          )}
         </View>
       </Page>
     </Document>

@@ -15,6 +15,7 @@ import {
 import { ArrowLeftIcon, PencilIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { SendInvoiceButton } from "@/components/send-invoice-button";
 
 interface InvoiceDetailPageProps {
   params: Promise<{
@@ -102,7 +103,16 @@ export default async function InvoiceDetailPage({
           </div>
         </div>
         <div className="flex justify-center items-center gap-2">
-          <GeneratePDFButton invoiceId={invoice.id} initialPdfUrl={invoice.pdfUrl} />
+          <GeneratePDFButton
+            invoiceId={invoice.id}
+            initialPdfUrl={invoice.pdfUrl}
+          />
+          {invoice.pdfUrl && (
+            <SendInvoiceButton
+              invoiceId={invoice.id}
+              disabled={!invoice.pdfUrl || invoice.status === "PAID"}
+            />
+          )}
 
           <Link href={`/invoices/${invoice.id}/edit`}>
             <Button variant="outline" size="sm">
