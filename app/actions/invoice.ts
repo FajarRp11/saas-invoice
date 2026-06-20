@@ -338,9 +338,7 @@ export async function generateInvocePDF(invoiceId: string) {
     data: { pdfUrl },
   });
 
-  revalidatePath(`/invoices/${invoiceId}`);
-
-  return { pdfUrl: `${pdfUrl}?t=${Date.now()}` };
+  return { pdfUrl };
 }
 
 export async function sendInvoiceEmail(invoiceId: string) {
