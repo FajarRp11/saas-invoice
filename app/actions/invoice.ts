@@ -12,6 +12,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createElement } from "react";
 import z from "zod";
+import { PaymentMethod } from "../generated/prisma/enums";
 
 export async function getInvoices() {
   const session = await auth();
@@ -401,4 +402,40 @@ export async function sendInvoiceEmail(invoiceId: string) {
   revalidatePath(`/invoices/${invoiceId}`);
 
   return { success: true };
+}
+
+export async function recordPayment(
+  invoiceId: string,
+  data: {
+    amount: number;
+    method: PaymentMethod;
+    paidAt: Date;
+    note?: string;
+  },
+) {
+  await prisma.payment.create({
+    data: { invoiceId, ...data },
+  });
+
+  const payments = await prisma.payment.findMany({
+    where: { invoiceId },
+  });
+  const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: invoiceId },
+  });
+
+  if (!invoice) {
+    throw new Error("Invoice not found");
+  }
+
+  const newStatus = totalPaid >= invoice.total ? "PAID" : invoice.status;
+
+  await prisma.invoice.update({
+    where: { id: invoiceId },
+    data: { status: newStatus },
+  });
+
+  revalidatePath(`/invoices/${invoiceId}`);
 }

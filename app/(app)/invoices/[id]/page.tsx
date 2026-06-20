@@ -16,6 +16,7 @@ import { ArrowLeftIcon, PencilIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SendInvoiceButton } from "@/components/send-invoice-button";
+import RecordPaymentDialog from "@/components/record-payment-dialog";
 
 interface InvoiceDetailPageProps {
   params: Promise<{
@@ -112,6 +113,10 @@ export default async function InvoiceDetailPage({
               invoiceId={invoice.id}
               disabled={!invoice.pdfUrl || invoice.status === "PAID"}
             />
+          )}
+
+          {invoice.status !== "DRAFT" && invoice.status !== "CANCELLED" && (
+            <RecordPaymentDialog invoiceId={invoice.id} invoiceTotal={invoice.total} />
           )}
 
           <Link href={`/invoices/${invoice.id}/edit`}>
