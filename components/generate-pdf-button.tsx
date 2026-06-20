@@ -4,7 +4,9 @@ import { generateInvocePDF } from "@/app/actions/invoice";
 import { Button } from "@/components/ui/button";
 import { FileDown, FileText } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface GeneratePDFButtonProps {
   invoiceId: string;
@@ -15,6 +17,7 @@ export function GeneratePDFButton({
   invoiceId,
   initialPdfUrl,
 }: GeneratePDFButtonProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(initialPdfUrl || null);
 
@@ -24,9 +27,12 @@ export function GeneratePDFButton({
       const res = await generateInvocePDF(invoiceId);
       if (res?.pdfUrl) {
         setPdfUrl(res.pdfUrl);
+        toast.success("PDF generated successfully!");
+        router.refresh();
       }
     } catch (error) {
       console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF");
     } finally {
       setLoading(false);
     }
@@ -69,3 +75,4 @@ export function GeneratePDFButton({
     </div>
   );
 }
+
