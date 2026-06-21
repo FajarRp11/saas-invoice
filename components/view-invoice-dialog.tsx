@@ -110,13 +110,7 @@ export default function ViewInvoiceDialog({
   );
 }
 
-function DetailRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | null;
-}) {
+function DetailRow({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="grid gap-1">
       <span className="text-sm font-medium text-muted-foreground">{label}</span>
