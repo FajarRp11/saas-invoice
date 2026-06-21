@@ -8,7 +8,7 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-import { BanknoteArrowUp, BanknoteArrowDown, UserRound } from "lucide-react";
+import { BanknoteArrowUp, BanknoteArrowDown, UsersRound } from "lucide-react";
 
 interface sectionCardsProps {
   revenueThisMonth: number;
@@ -61,7 +61,7 @@ export function SectionCards({
         <CardHeader>
           <CardDescription>Total CLients</CardDescription>
           <CardAction>
-            <UserRound />
+            <UsersRound />
           </CardAction>
         </CardHeader>
         <CardContent>

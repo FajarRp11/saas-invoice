@@ -4,6 +4,7 @@ import { SectionCards } from "@/components/section-cards";
 import { getDashboardData } from "@/app/actions/dashboard";
 import { columns } from "./data-table/columns";
 import { DataTable } from "./data-table/data-table";
+import StatusStatsCard from "@/components/status-stats-card";
 
 export default async function DashbioardPage() {
   const data = await getDashboardData();
@@ -19,8 +20,9 @@ export default async function DashbioardPage() {
             outstanding={data.outstanding ?? 0}
             totalCLients={data.totalClients}
           />
-          <div className="px-4 lg:px-6">
+          <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-3 px-4 lg:px-6">
             <ChartAreaInteractive data={data.monthlyRevenue} />
+            <StatusStatsCard data={data.statusMap} />
           </div>
           <div className="px-4 lg:px-6">
             <DataTable columns={columns} data={data.recentInvoices} />

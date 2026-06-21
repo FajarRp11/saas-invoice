@@ -39,12 +39,12 @@ interface ChartAreaInteractiveProps {
 
 export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
   return (
-    <Card className="@container/card">
+    <Card className="@container/card @xl:col-span-2">
       <CardHeader>
         <CardTitle>Revenue</CardTitle>
         <CardDescription>
           <span className="hidden @[540px]/card:block">
-            Revenue 6 bulan terakhir
+            Revenue Last Six Months
           </span>
           <span className="@[540px]/card:hidden">6 bulan terakhir</span>
         </CardDescription>
