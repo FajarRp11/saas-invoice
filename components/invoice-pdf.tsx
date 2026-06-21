@@ -225,21 +225,6 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica-BoldOblique",
     color: DARK,
   },
-  signatureBlock: {
-    alignItems: "center",
-    gap: 4,
-  },
-  signatureLine: {
-    width: 140,
-    borderBottomWidth: 1,
-    borderBottomColor: GOLD,
-    marginBottom: 4,
-  },
-  signatureLabel: {
-    fontSize: 9,
-    color: MUTED,
-    fontFamily: "Helvetica-Oblique",
-  },
 
   // ─── Footer Bar ───
   footerBar: {
@@ -482,15 +467,10 @@ export function InvoicePDF({ invoice }: InvoicePDFProps) {
             </View>
           </View>
 
-          {/* ─── Thank You + Authorized Signed ─── */}
           <View style={styles.thankYouSection}>
             <Text style={styles.thankYouText}>
               Thank you for your business!
             </Text>
-            <View style={styles.signatureBlock}>
-              <View style={styles.signatureLine} />
-              <Text style={styles.signatureLabel}>Authorized Signed</Text>
-            </View>
           </View>
         </View>
 
