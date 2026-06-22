@@ -33,6 +33,11 @@ export async function getInvoices() {
           email: true,
         },
       },
+      organization: {
+        select: {
+          currency: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -186,6 +191,11 @@ export async function getInvoiceById(id: string) {
         },
       },
       items: true,
+      organization: {
+        select: {
+          currency: true,
+        },
+      },
     },
   });
 

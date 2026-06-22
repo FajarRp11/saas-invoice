@@ -17,6 +17,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SendInvoiceButton } from "@/components/send-invoice-button";
 import RecordPaymentDialog from "@/components/record-payment-dialog";
+import { formatCurrency } from "@/lib/format";
 
 interface InvoiceDetailPageProps {
   params: Promise<{
@@ -54,13 +55,13 @@ const statusConfig: Record<
   },
 };
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(value);
-}
+// function formatCurrency(value: number) {
+//   return new Intl.NumberFormat("id-ID", {
+//     style: "currency",
+//     currency: "IDR",
+//     minimumFractionDigits: 0,
+//   }).format(value);
+// }
 
 function formatDate(date: Date | string) {
   return new Date(date).toLocaleDateString("id-ID", {
@@ -116,7 +117,10 @@ export default async function InvoiceDetailPage({
           )}
 
           {invoice.status !== "DRAFT" && invoice.status !== "CANCELLED" && (
-            <RecordPaymentDialog invoiceId={invoice.id} invoiceTotal={invoice.total} />
+            <RecordPaymentDialog
+              invoiceId={invoice.id}
+              invoiceTotal={invoice.total}
+            />
           )}
 
           <Link href={`/invoices/${invoice.id}/edit`}>
@@ -201,10 +205,16 @@ export default async function InvoiceDetailPage({
                       {item.quantity}
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(item.unitPrice)}
+                      {formatCurrency(
+                        item.unitPrice,
+                        invoice.organization.currency,
+                      )}
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {formatCurrency(item.total)}
+                      {formatCurrency(
+                        item.total,
+                        invoice.organization.currency,
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -224,7 +234,10 @@ export default async function InvoiceDetailPage({
                       Tax ({invoice.taxPercent}%)
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(invoice.taxAmount)}
+                      {formatCurrency(
+                        invoice.taxAmount,
+                        invoice.organization.currency,
+                      )}
                     </TableCell>
                   </TableRow>
                 )}
@@ -234,7 +247,11 @@ export default async function InvoiceDetailPage({
                       Discount
                     </TableCell>
                     <TableCell className="text-right text-destructive">
-                      - {formatCurrency(invoice.discount)}
+                      -{" "}
+                      {formatCurrency(
+                        invoice.discount,
+                        invoice.organization.currency,
+                      )}
                     </TableCell>
                   </TableRow>
                 )}
@@ -243,7 +260,10 @@ export default async function InvoiceDetailPage({
                     Grand Total
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency(invoice.total)}
+                    {formatCurrency(
+                      invoice.total,
+                      invoice.organization.currency,
+                    )}
                   </TableCell>
                 </TableRow>
               </TableFooter>

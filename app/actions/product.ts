@@ -20,6 +20,13 @@ export async function getProducts() {
     orderBy: {
       createdAt: "desc",
     },
+    include: {
+      organization: {
+        select: {
+          currency: true,
+        },
+      },
+    },
   });
 
   return products;

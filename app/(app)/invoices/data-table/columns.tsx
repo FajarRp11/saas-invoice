@@ -15,6 +15,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Eye, MoreHorizontal, Trash2, Pencil } from "lucide-react";
 import DeleteInvoiceDialog from "@/components/delete-invoice-dialog";
 import Link from "next/link";
+import { formatCurrency } from "@/lib/format";
 
 export type InvoiceStatus = "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "CANCELLED";
 
@@ -42,6 +43,9 @@ export type InvoiceWithClient = {
     id: string;
     name: string;
     email: string | null;
+  };
+  organization: {
+    currecncy: string;
   };
 };
 
@@ -72,14 +76,6 @@ export const statusConfig: Record<
       "bg-neutral-100 text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400",
   },
 };
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(value);
-}
 
 function InvoiceActions({ invoice }: { invoice: InvoiceWithClient }) {
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -191,7 +187,10 @@ export const columns: ColumnDef<InvoiceWithClient>[] = [
     header: () => <div className="text-right">Total</div>,
     cell: ({ row }) => (
       <div className="text-right font-medium">
-        {formatCurrency(row.original.total)}
+        {formatCurrency(
+          row.original.total,
+          row.original.organization.currecncy,
+        )}
       </div>
     ),
   },

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import type { Product } from "@/app/(app)/products/data-table/columns";
+import { formatCurrency } from "@/lib/format";
 
 interface ViewProductDialogProps {
   product: Product;
@@ -21,12 +22,6 @@ export default function ViewProductDialog({
   open,
   onOpenChange,
 }: ViewProductDialogProps) {
-  const formattedPrice = new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(product.price);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -45,7 +40,13 @@ export default function ViewProductDialog({
           </div>
           <DetailRow label="Description" value={product.description} />
           <div className="grid grid-cols-2 gap-4">
-            <DetailRow label="Price" value={formattedPrice} />
+            <DetailRow
+              label="Price"
+              value={formatCurrency(
+                product.price,
+                product.organization.currecncy,
+              )}
+            />
             <DetailRow label="Unit" value={product.unit} />
           </div>
           <DetailRow
@@ -62,13 +63,7 @@ export default function ViewProductDialog({
   );
 }
 
-function DetailRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | null;
-}) {
+function DetailRow({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="grid gap-1">
       <span className="text-sm font-medium text-muted-foreground">{label}</span>

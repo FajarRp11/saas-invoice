@@ -16,6 +16,7 @@ import { Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import ViewProductDialog from "@/components/view-product-dialog";
 import EditProductDialog from "@/components/edit-product-dialog";
 import DeleteProductDialog from "@/components/delete-product-dialog";
+import { formatCurrency } from "@/lib/format";
 
 // Type matching the Prisma Product model
 export type Product = {
@@ -28,6 +29,9 @@ export type Product = {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  organization: {
+    currecncy: string;
+  };
 };
 
 function ProductActions({ product }: { product: Product }) {
@@ -102,11 +106,7 @@ export const columns: ColumnDef<Product>[] = [
     header: "Price",
     cell: ({ row }) => {
       const price = row.original.price;
-      return new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-        minimumFractionDigits: 0,
-      }).format(price);
+      return formatCurrency(price, row.original.organization.currecncy);
     },
   },
   {
