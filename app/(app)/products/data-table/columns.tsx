@@ -30,7 +30,7 @@ export type Product = {
   createdAt: Date;
   updatedAt: Date;
   organization: {
-    currecncy: string;
+    currency: string;
   };
 };
 
@@ -106,7 +106,7 @@ export const columns: ColumnDef<Product>[] = [
     header: "Price",
     cell: ({ row }) => {
       const price = row.original.price;
-      return formatCurrency(price, row.original.organization.currecncy);
+      return formatCurrency(price, row.original.organization.currency);
     },
   },
   {

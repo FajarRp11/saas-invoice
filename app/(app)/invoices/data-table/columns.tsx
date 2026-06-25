@@ -45,7 +45,7 @@ export type InvoiceWithClient = {
     email: string | null;
   };
   organization: {
-    currecncy: string;
+    currency: string;
   };
 };
 
@@ -189,7 +189,7 @@ export const columns: ColumnDef<InvoiceWithClient>[] = [
       <div className="text-right font-medium">
         {formatCurrency(
           row.original.total,
-          row.original.organization.currecncy,
+          row.original.organization.currency,
         )}
       </div>
     ),

@@ -44,7 +44,7 @@ export default function ViewProductDialog({
               label="Price"
               value={formatCurrency(
                 product.price,
-                product.organization.currecncy,
+                product.organization.currency,
               )}
             />
             <DetailRow label="Unit" value={product.unit} />
