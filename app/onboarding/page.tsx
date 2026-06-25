@@ -55,6 +55,13 @@ export default function Page() {
     }
   }, [state, router]);
 
+  const SUPPORTED_CURRENCIES = [
+    { value: "IDR", label: "IDR - Indonesian Rupiah" },
+    { value: "USD", label: "USD - US Dollar" },
+    { value: "SGD", label: "SGD - Singapore Dollar" },
+    { value: "MYR", label: "MYR - Malaysian Ringgit" },
+  ];
+
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="w-full max-w-4xl z-10 transition-all duration-300 hover:scale-[1.002]">
@@ -187,11 +194,14 @@ export default function Page() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectItem value="IDR">IDR (Rp)</SelectItem>
-                            <SelectItem value="USD">USD ($)</SelectItem>
-                            <SelectItem value="EUR">EUR (€)</SelectItem>
-                            <SelectItem value="GBP">GBP (£)</SelectItem>
-                            <SelectItem value="SGD">SGD (S$)</SelectItem>
+                            {SUPPORTED_CURRENCIES.map((currency) => (
+                              <SelectItem
+                                key={currency.value}
+                                value={currency.value}
+                              >
+                                {currency.label}
+                              </SelectItem>
+                            ))}
                           </SelectGroup>
                         </SelectContent>
                       </Select>
