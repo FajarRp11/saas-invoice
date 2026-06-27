@@ -22,9 +22,11 @@ import {
   CreditCardIcon,
   BellIcon,
   LogOutIcon,
+  Settings,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { signOutAction } from "@/app/actions/auth";
+import Link from "next/link";
 
 export function NavUser({
   user,
@@ -82,21 +84,15 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <CircleUserRoundIcon />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCardIcon />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <BellIcon />
-                Notifications
+                <Link href="/settings" className="flex items-center gap-2">
+                  <Settings />
+                  Setting
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <form action={signOutAction}>
-              <DropdownMenuItem>
+              <DropdownMenuItem className="py-0">
                 <Button
                   type="submit"
                   variant="ghost"

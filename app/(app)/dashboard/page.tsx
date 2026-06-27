@@ -1,12 +1,13 @@
-import { ChartAreaInteractive } from "@/components/chart-area-interactive";
+// import { ChartAreaInteractive } from "@/components/chart-area-interactive";
 import { SectionCards } from "@/components/section-cards";
 
 import { getDashboardData } from "@/app/actions/dashboard";
 import { columns } from "./data-table/columns";
 import { DataTable } from "./data-table/data-table";
 import StatusStatsCard from "@/components/status-stats-card";
+import { DashboardChart } from "@/components/dashboard-chart";
 
-export default async function DashbioardPage() {
+export default async function DashboardPage() {
   const data = await getDashboardData();
 
   console.log(data);
@@ -21,7 +22,8 @@ export default async function DashbioardPage() {
             totalCLients={data.totalClients}
           />
           <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-3 px-4 lg:px-6">
-            <ChartAreaInteractive data={data.monthlyRevenue} />
+            {/* <ChartAreaInteractive data={data.monthlyRevenue} /> */}
+            <DashboardChart data={data.monthlyRevenue} />
             <StatusStatsCard data={data.statusMap} />
           </div>
           <div className="px-4 lg:px-6">

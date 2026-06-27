@@ -78,3 +78,86 @@ export const createOrganization = async (
     };
   }
 };
+
+export const updateOrganization = async (
+  prevState: unknown,
+  formData: FormData,
+) => {
+  try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return { success: false, message: "Unauthorized. Please log in." };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return { success: false, message: "User not found in the database." };
+    }
+
+    const org = await prisma.organization.findFirst({
+      where: { userId: user.id },
+    });
+
+    if (!org) {
+      return { success: false, message: "Organization not found." };
+    }
+
+    // Convert FormData to plain object for validation
+    const rawData = Object.fromEntries(formData.entries());
+    const validationResult = OrganizationSchema.safeParse(rawData);
+
+    if (!validationResult.success) {
+      return {
+        success: false,
+        error: z.flattenError(validationResult.error),
+      };
+    }
+
+    const {
+      name,
+      email,
+      phone,
+      address,
+      city,
+      country,
+      currency,
+      taxPercent,
+      invoicePrefix,
+      nextInvoiceNum,
+    } = validationResult.data;
+
+    // Update the organization in database
+    await prisma.organization.update({
+      where: {
+        id: org.id,
+      },
+      data: {
+        name,
+        email: email || null,
+        phone: phone || null,
+        address: address || null,
+        city: city || null,
+        country: country || null,
+        currency,
+        taxPercent,
+        invoicePrefix,
+        nextInvoiceNum,
+      },
+    });
+
+    return {
+      success: true,
+      message: "Organization updated successfully!",
+    };
+  } catch (error: any) {
+    console.error("Update organization error:", error);
+    return {
+      success: false,
+      message: error?.message || "An unexpected error occurred on the server.",
+    };
+  }
+};
+
